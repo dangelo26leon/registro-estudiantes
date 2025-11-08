@@ -17,3 +17,15 @@ jobs:
           java-version: '17'
       - name: Build and Test
         run: mvn -B clean verify
+
+  notify:
+    needs: build
+    runs-on: ubuntu-latest
+    if: failure()  
+    steps:
+      - name: Notify Discord on Failure
+        run: |
+          curl -X POST \
+          -H "Content-Type: application/json" \
+          -d "{\"content\":\":x: CI FALLÓ en **${{ github.repository }}**\nRama: \`${{ github.ref }}\`\nVer detalles: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}" \
+          ${{ secrets.DISCORD_WEBHOOK_URL }}
